@@ -11,6 +11,6 @@ The server can connect to multiple clients
 ## Making the server accessible
 
 If you want to allow clients connecting from somewhere other than your own PC, do the following:
-
-- Create a tunnel with pinggy, which should look something like this: `ssh -p 443 -R0:localhost:8080 -o StrictHostKeyChecking=no -o ServerAliveInterval=30 <your access token here>+force+tcp@free.pinggy.io`
-- Clients just have to copy the created tunnel ip without the `tcp://` part into `client/connection_target` 
+- install Rust and install bore with `cargo install bore-cli`
+- run `bore local 8080 --to bore.pub` to open a tunnel
+- start the server by running `./server` in `server/`
