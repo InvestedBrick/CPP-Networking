@@ -1,4 +1,4 @@
-WARNING: **This code is Linux exculive and has only been tested on Ubuntu**
+WARNING: **This code is Linux eclusive and has only been tested on Ubuntu**
 
 This currently only listens and connects on 127.0.0.1 (localhost)
 
