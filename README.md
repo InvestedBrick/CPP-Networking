@@ -7,3 +7,10 @@ To start the server run `make` in `server/` to compile and then run with `./serv
 You can also compile the client with `make` 
 
 The server can connect to multiple clients
+
+## Making the server accessible
+
+If you want to allow clients connecting from somewhere other than your own PC, do the following:
+
+- Create a tunnel by running `ssh -p 443 -R0:localhost:8080 -o StrictHostKeyChecking=no -o ServerAliveInterval=30 XzUsHzoakMK+force+tcp@free.pinggy.io`
+- Clients just have to copy the created tunnel ip without the `tcp://` part into `client/connection_target` 
