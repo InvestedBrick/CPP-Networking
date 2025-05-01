@@ -12,5 +12,5 @@ The server can connect to multiple clients
 
 If you want to allow clients connecting from somewhere other than your own PC, do the following:
 
-- Create a tunnel by running `ssh -p 443 -R0:localhost:8080 -o StrictHostKeyChecking=no -o ServerAliveInterval=30 XzUsHzoakMK+force+tcp@free.pinggy.io`
+- Create a tunnel with pinggy, which should look something like this: `ssh -p 443 -R0:localhost:8080 -o StrictHostKeyChecking=no -o ServerAliveInterval=30 <your access token here>+force+tcp@free.pinggy.io`
 - Clients just have to copy the created tunnel ip without the `tcp://` part into `client/connection_target` 
