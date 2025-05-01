@@ -11,10 +11,20 @@
 
 std::mutex mtx;
 
+#define MAX_THREADS 12
 #define MAX_BUF_SIZE 4096
 #define PORT 8080
 #define FAILED -1
+int n_threads = 0;
 
+void increment_thread_count() {
+    std::lock_guard<std::mutex> lock(mtx);
+    n_threads++;
+}
+void decrement_thread_count() {
+    std::lock_guard<std::mutex> lock(mtx);
+    n_threads--;
+}
 
 void log(const std::string &message) {
     std::lock_guard<std::mutex> lock(mtx);
@@ -32,7 +42,8 @@ void warn(const std::string &message) {
 }
 
 void handle_client(void* args){
-    int client_socket = *(int*)args;
+    int client_socket = *reinterpret_cast<int*>(args);
+    delete reinterpret_cast<int*>(args);
     // recieve messages
 
     char buf[MAX_BUF_SIZE];
@@ -40,7 +51,8 @@ void handle_client(void* args){
         memset(buf,0, MAX_BUF_SIZE); // clear buffer
         int bytes_recieved = recv(client_socket, buf, MAX_BUF_SIZE, 0);
         if (bytes_recieved == FAILED){
-            warn("Failed to receive message");
+            //warn("Failed to receive message");
+            continue;
         }else if (bytes_recieved == 0){
             log("Client disconnected");
             break;
@@ -50,11 +62,12 @@ void handle_client(void* args){
             std::cout << "Recieved: " << std::string(buf,0,bytes_recieved) << std::endl;
         }
         send(client_socket, buf, bytes_recieved + 1, 0); // echo back
+        
     } 
   
     // Close socket
     close(client_socket);
-    
+    decrement_thread_count();
 }
 
 void listener_thread(void* args){
@@ -66,10 +79,17 @@ void listener_thread(void* args){
         char host[NI_MAXHOST];
         char service[NI_MAXSERV];
         
-        int client_socket = accept(socketfd, (sockaddr*) &client, &client_size);
+        int client_socket = FAILED;
+        
+        if (n_threads < MAX_THREADS){
+            client_socket = accept(socketfd, (sockaddr*) &client, &client_size);
+        }else{
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            continue;
+        }
         
         if (client_socket == FAILED){
-            fail("Failed to accept connection");
+            warn("Failed to accept connection");
         }else{
             log("Client connected");
         }
@@ -93,8 +113,9 @@ void listener_thread(void* args){
         }
 
         // create a thread to handle the client
-        std::thread client_handler(handle_client,&client_socket);
+        std::thread client_handler(handle_client,new int(client_socket));
         client_handler.detach();
+        increment_thread_count();
     }
     
 }
