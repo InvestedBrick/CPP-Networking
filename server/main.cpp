@@ -48,10 +48,10 @@ void handle_client(void* args){
     delete reinterpret_cast<int*>(args);
     // recieve messages
     client_data c_data;
+    char instruc;
     char buf[MAX_BUF_SIZE];
     while(true){
-        memset(buf,0, MAX_BUF_SIZE); // clear buffer
-        int bytes_recieved = recv(client_socket, buf, MAX_BUF_SIZE, 0);
+        int bytes_recieved = recv(client_socket, &instruc, 1, 0);
         if (bytes_recieved == FAILED){
             warn("Failed to receive message");
             continue;
@@ -59,16 +59,14 @@ void handle_client(void* args){
             log("Client disconnected");
             break;
         }
-        c_data.parse_cmd(buf,bytes_recieved);
-        if (!c_data.to_be_colored.empty()){
+        c_data.parse_char(instruc);
+        if (c_data.color_current_cell){
             {
                 std::lock_guard<std::mutex> lock(mtx);
 
-                for (size_t i = 0; i < c_data.to_be_colored.size(); ++i){
-                    grid.set_pixel(c_data.to_be_colored[i].first,c_data.to_be_colored[i].second,c_data.current_color);
-                }
+                grid.set_pixel(c_data.pos_x,c_data.pos_y,c_data.current_color);
             }
-            c_data.clear_color();
+            c_data.color_current_cell = false;
         }
         // send grid
         std::string grid_str = grid.encode_long();
