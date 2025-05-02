@@ -8,11 +8,13 @@
 #include <thread>
 #include <mutex>
 #include <queue>
+#include "../shared/grid.hpp"
 
+Grid grid;
 std::mutex mtx;
 
 #define MAX_THREADS 12
-#define MAX_BUF_SIZE 4096
+#define MAX_BUF_SIZE (GRID_WIDTH * GRID_HEIGHT)
 #define PORT 8080
 #define FAILED -1
 int n_threads = 0;
@@ -61,7 +63,10 @@ void handle_client(void* args){
             std::lock_guard<std::mutex> lock(mtx);
             std::cout << "Recieved: " << std::string(buf,0,bytes_recieved) << std::endl;
         }
-        send(client_socket, buf, bytes_recieved + 1, 0); // echo back
+        // send grid
+        std::string grid_str = grid.encode_long();
+        memcpy(buf,grid_str.c_str(),grid_str.length());
+        send(client_socket, buf, grid_str.length(), 0); // send the field
         
     } 
   
