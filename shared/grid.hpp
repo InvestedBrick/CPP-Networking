@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include <iostream>
 #include "colors.hpp"
@@ -8,7 +9,7 @@
 
 class Grid {
 public:
-    int grid[GRID_WIDTH][GRID_HEIGHT];
+    int grid[GRID_HEIGHT][GRID_WIDTH];
     Grid() {
         for (int i = 0; i < GRID_HEIGHT; ++i) {
             for (int j = 0; j < GRID_WIDTH; ++j) {
@@ -30,7 +31,7 @@ public:
 
     void set_pixel(int x, int y, const int color) {
         if (x >= 0 && x < GRID_WIDTH && y >= 0 && y < GRID_HEIGHT) {
-            grid[x][y] = color;
+            grid[y][x] = color;
         }
     }
 
@@ -43,13 +44,47 @@ public:
         }
         return result;
     }
-
+    
     void decode_long(const std::string& data) {
         for (int i = 0; i < GRID_HEIGHT;++i){
             for(int j = 0; j < GRID_WIDTH; ++j){
-                grid[i][j] = char_to_color(data[i * GRID_HEIGHT + j]);
+                grid[i][j] = char_to_color(data[i * GRID_WIDTH + j]);
             }
         }
     }
     
+    std::string rle_encode(const std::string& data) {
+        std::string result;
+        int count = 1;
+        for (size_t i = 1; i < data.length(); ++i){
+            if (data[i] == data[i - 1]) {
+                count++;
+            } else {
+                result += std::to_string(count) + data[i - 1];
+                count = 1;
+            }
+        }
+        result += std::to_string(count) + data[data.length() - 1];
+        return result;
+    }
+
+    std::string rle_decode(const std::string& data) {
+        std::string result;
+        std::string num_buf;
+
+        for (char c : data){
+            if (isdigit(c)){
+                num_buf += c;
+            }else{
+                if (!num_buf.empty()){
+                    int count = std::stoi(num_buf);
+                    result.append(count, c);
+                    num_buf.clear();
+                }
+            }
+            
+        }
+        return result;
+    }
+
 };
