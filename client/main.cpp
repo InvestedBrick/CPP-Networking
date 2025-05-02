@@ -93,7 +93,6 @@ int main(){
 
         std::cout << "The Grid; Use WASD to move, 'q' to quit and 'c' to color the current cell" << std::endl;
         std::cout << grid.to_string() << std::endl;
-        std::cout << "Enter message: ";
         std::flush(std::cout);
 
         set_non_blocking(true);
@@ -108,12 +107,10 @@ int main(){
         set_non_blocking(false);
 
 
-        msg.clear();
-        msg.push_back(ch);
-        if (msg == "q") {
+        if (ch == 'q') {
             break;
         }
-        send(socketfd,msg.c_str(),msg.size(),0);
+        send(socketfd,&ch,1,0);
 
         memset(buffer, 0, MAX_BUF_SIZE);
         int bytes_received = recv(socketfd, buffer, MAX_BUF_SIZE, 0);
