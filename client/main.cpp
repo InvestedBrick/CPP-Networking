@@ -6,6 +6,10 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <fstream>
+//Stuff for changing therminal mode
+#include <termios.h>
+#include <fcntl.h>
+
 #include "../shared/grid.hpp"
 
 Grid grid;
@@ -21,6 +25,23 @@ void warn(const std::string &message) {
 void fail(const std::string &message) {
     std::cerr << "[FAIL] " << message << std::endl;
     exit(EXIT_FAILURE);
+}
+
+
+void set_non_blocking(bool enable) {
+    static struct termios oldt, newt;
+
+    if (enable) {
+        tcgetattr(STDIN_FILENO, &oldt);           // get current terminal attributes
+        newt = oldt;
+        newt.c_lflag &= ~(ICANON | ECHO);         // disable canonical mode and echo
+        tcsetattr(STDIN_FILENO, TCSANOW, &newt);  // apply settings
+
+        fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK); // make read non-blocking
+    } else {
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);  // restore terminal settings
+        fcntl(STDIN_FILENO, F_SETFL, 0);          // restore blocking
+    }
 }
 
 int main(){
@@ -65,23 +86,43 @@ int main(){
     }
 
     char buffer[MAX_BUF_SIZE];
+    std::string msg = "s";
+    char ch;
     while(true){
-        memset(buffer, 0, MAX_BUF_SIZE);
-        std::string msg;
+        system("clear");
+
+        std::cout << "The Grid; Use WASD to move, 'q' to quit and 'c' to color the current cell" << std::endl;
+        std::cout << grid.to_string() << std::endl;
         std::cout << "Enter message: ";
-        std::getline(std::cin, msg);
-        if (msg == "exit") {
+        std::flush(std::cout);
+
+        set_non_blocking(true);
+
+        while (true){
+            if(read(STDIN_FILENO,&ch,1) > 0){
+                //std::cout << "You pressed: " << ch << std::endl; 
+                break;
+            }
+            usleep(10000);
+        }
+        set_non_blocking(false);
+
+
+        msg.clear();
+        msg.push_back(ch);
+        if (msg == "q") {
             break;
         }
         send(socketfd,msg.c_str(),msg.size(),0);
 
+        memset(buffer, 0, MAX_BUF_SIZE);
         int bytes_received = recv(socketfd, buffer, MAX_BUF_SIZE, 0);
         if (bytes_received == FAILED) {
             warn("Failed to receive message");
         }
-        grid.decode_long(std::string(buffer,0,MAX_BUF_SIZE));
-        std::cout << "Grid:" << std::endl;
-        std::cout << grid.to_string() << std::endl;
+
+        grid.decode_long(grid.rle_decode(std::string(buffer,0,bytes_received)));
+        
     }
     close(socketfd);
     return 0;
