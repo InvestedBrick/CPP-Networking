@@ -9,7 +9,7 @@
 #include <mutex>
 #include <queue>
 #include "../shared/grid.hpp"
-
+#include "client_data.hpp"
 Grid grid;
 std::mutex mtx;
 
@@ -47,24 +47,34 @@ void handle_client(void* args){
     int client_socket = *reinterpret_cast<int*>(args);
     delete reinterpret_cast<int*>(args);
     // recieve messages
-
+    client_data c_data;
     char buf[MAX_BUF_SIZE];
     while(true){
         memset(buf,0, MAX_BUF_SIZE); // clear buffer
         int bytes_recieved = recv(client_socket, buf, MAX_BUF_SIZE, 0);
         if (bytes_recieved == FAILED){
-            //warn("Failed to receive message");
+            warn("Failed to receive message");
             continue;
         }else if (bytes_recieved == 0){
             log("Client disconnected");
             break;
         }
-        {
-            std::lock_guard<std::mutex> lock(mtx);
-            std::cout << "Recieved: " << std::string(buf,0,bytes_recieved) << std::endl;
+        c_data.parse_cmd(buf,bytes_recieved);
+        if (!c_data.to_be_colored.empty()){
+            {
+                std::lock_guard<std::mutex> lock(mtx);
+
+                for (size_t i = 0; i < c_data.to_be_colored.size(); ++i){
+                    grid.set_pixel(c_data.to_be_colored[i].first,c_data.to_be_colored[i].second,c_data.current_color);
+                }
+            }
+            c_data.clear_color();
         }
         // send grid
         std::string grid_str = grid.encode_long();
+        grid_str[c_data.pos_y * GRID_WIDTH + c_data.pos_x] = 'X'; // set player cursor
+        grid_str = grid.rle_encode(grid_str);
+        //std::cout << "Sending " << grid_str.length() << " bytes!" << std::endl;
         memcpy(buf,grid_str.c_str(),grid_str.length());
         send(client_socket, buf, grid_str.length(), 0); // send the field
         
