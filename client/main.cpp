@@ -6,7 +6,11 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <fstream>
-#define MAX_BUF_SIZE 4096
+#include "../shared/grid.hpp"
+
+Grid grid;
+
+#define MAX_BUF_SIZE (GRID_WIDTH * GRID_HEIGHT)
 #define FAILED -1
 void log(const std::string &message) {
     std::cout << "[LOG] " << message << std::endl;
@@ -75,7 +79,9 @@ int main(){
         if (bytes_received == FAILED) {
             warn("Failed to receive message");
         }
-        std::cout << "Server: " << std::string(buffer,0,bytes_received) << std::endl;
+        grid.decode_long(std::string(buffer,0,MAX_BUF_SIZE));
+        std::cout << "Grid:" << std::endl;
+        std::cout << grid.to_string() << std::endl;
     }
     close(socketfd);
     return 0;
