@@ -13,4 +13,5 @@ The server can connect to multiple clients
 If you want to allow clients connecting from somewhere other than your own PC, do the following:
 - install Rust and install bore with `cargo install bore-cli`
 - run `bore local 8080 --to bore.pub` to open a tunnel
+- paste the tunnel link into `client/connection_target.txt`
 - start the server by running `./server` in `server/`
