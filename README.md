@@ -1,6 +1,4 @@
-WARNING: **This code is Linux eclusive and has only been tested on Ubuntu**
-
-This currently only listens and connects on 127.0.0.1 (localhost)
+WARNING: **This code is Linux exclusive and has only been tested on Ubuntu**
 
 To start the server run `make` in `server/` to compile and then run with `./server`
 
