@@ -13,8 +13,9 @@ $(TARGET): $(SRC)
 	$(CXX) $(CXX_FLAGS) -o $(TARGET) $(SRC)
 
 # Clean the build
-clean:
+build:
 	rm -f $(TARGET)
+	make
 
 # Phony targets
-.PHONY: clean
+.PHONY: build
