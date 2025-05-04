@@ -72,7 +72,10 @@ void handle_client(void* args){
         std::string grid_str = grid.encode_long();
         grid_str[c_data.pos_y * GRID_WIDTH + c_data.pos_x] = 'X'; // set player cursor
         grid_str = grid.rle_encode(grid_str);
-        //std::cout << "Sending " << grid_str.length() << " bytes!" << std::endl;
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+            std::cout << "Sending " << grid_str.length() << " bytes!" << std::endl;
+        }
         memcpy(buf,grid_str.c_str(),grid_str.length());
         send(client_socket, buf, grid_str.length(), 0); // send the field
         
