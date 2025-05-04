@@ -16,8 +16,11 @@ std::mutex mtx;
 #define MAX_THREADS 12
 #define MAX_BUF_SIZE (GRID_WIDTH * GRID_HEIGHT)
 #define PORT 8080
+#define CLOSE_PORT 4352
 #define FAILED -1
 int n_threads = 0;
+bool close_server = false;
+
 
 void increment_thread_count() {
     std::lock_guard<std::mutex> lock(mtx);
@@ -43,6 +46,27 @@ void warn(const std::string &message) {
     std::cerr << "[WARN] " << message << std::endl;
 }
 
+int create_socket_fd(const int port, const char* ip){
+    int socketfd = socket(AF_INET, SOCK_STREAM,0);
+    if (socketfd == FAILED){
+        fail("Failed to create socket");
+    }else{
+        log("Socket created");
+    }
+    sockaddr_in hint;
+    hint.sin_family = AF_INET; // IPv4
+    hint.sin_addr.s_addr = INADDR_ANY;
+    hint.sin_port = htons(port);
+    inet_pton(AF_INET,ip,&hint.sin_addr); // bind to any address
+
+    if (bind(socketfd, (sockaddr*)&hint, sizeof(hint)) == FAILED){
+        fail("Failed to bind socket");
+    }else{
+        log("Socket bound");
+    }
+
+    return socketfd;
+}
 void handle_client(void* args){
     int client_socket = *reinterpret_cast<int*>(args);
     delete reinterpret_cast<int*>(args);
@@ -51,6 +75,10 @@ void handle_client(void* args){
     char instruc;
     char buf[MAX_BUF_SIZE];
     while(true){
+
+        if (close_server){
+            return;
+        }
         int bytes_recieved = recv(client_socket, &instruc, 1, 0);
         if (bytes_recieved == FAILED){
             warn("Failed to receive message");
@@ -103,7 +131,9 @@ void listener_thread(void* args){
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         }
-        
+        if (close_server){
+            return;
+        }
         if (client_socket == FAILED){
             warn("Failed to accept connection");
         }else{
@@ -136,30 +166,33 @@ void listener_thread(void* args){
     
 }
 
+void closing_thread() {
+    //closing thread
+    int closing_threadfd = create_socket_fd(CLOSE_PORT,"127.0.0.1");
+
+    // listen
+    if (listen(closing_threadfd, SOMAXCONN) == FAILED){
+        fail("Failed to listen");
+    }else{
+        log("Closing thread listening on port " + std::to_string(CLOSE_PORT));
+    }
+    sockaddr_in client;
+    socklen_t client_size = sizeof(client);
+    while(true){
+
+        if (accept(closing_threadfd,(sockaddr*) &client,&client_size) != FAILED){
+            grid.save_canvas();
+            close_server = true;
+            log("Closed Server");
+            exit(EXIT_SUCCESS);
+        }
+    }
+    
+}
+
 int main() {
 
-    // create a socket
-
-    int socketfd = socket(AF_INET, SOCK_STREAM,0);
-
-    if (socketfd == FAILED){
-        fail("Failed to create socket");
-    }else{
-        log("Socket created");
-    }
-
-    // bind the socket to IP and port
-    sockaddr_in hint;
-    hint.sin_family = AF_INET; // IPv4
-    hint.sin_addr.s_addr = INADDR_ANY;
-    hint.sin_port = htons(PORT);
-    inet_pton(AF_INET,"0.0.0.0",&hint.sin_addr); // bind to any address
-    
-    if (bind(socketfd, (sockaddr*)&hint, sizeof(hint)) == FAILED){
-        fail("Failed to bind socket");
-    }else{
-        log("Socket bound");
-    }
+    int socketfd = create_socket_fd(PORT,"0.0.0.0");
     
     // listen
     if (listen(socketfd, SOMAXCONN) == FAILED){
@@ -170,6 +203,9 @@ int main() {
 
     // create a listening thread
     std::thread listener(listener_thread, &socketfd);
+    std::thread closer(closing_thread);
+
+    closer.join();
     listener.join();
 
     close(socketfd);
