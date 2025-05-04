@@ -90,9 +90,13 @@ int main(){
     char ch;
     while(true){
         system("clear");
-
         std::cout << "The Grid; Use WASD to move, 'q' to quit and 'c' to color the current cell" << std::endl;
-        std::cout << grid.to_string() << std::endl;
+        std::cout << "To change color, press the following to choose: " << std::endl;
+        std::cout << color_to_string(ANSI_COLOR_BLACK) <<"0 = BLACK"<< color_to_string(ANSI_COLOR_RESET) << " 1 = WHITE" << color_to_string(ANSI_COLOR_RED)
+        << " 2 = RED"<< color_to_string(ANSI_COLOR_GREEN)<<" 3 = GREEN"<< color_to_string(ANSI_COLOR_YELLOW)<<" 4 = YELLOW"<< color_to_string(ANSI_COLOR_BLUE)
+        <<" 5 = BLUE"<< color_to_string(ANSI_COLOR_MAGENTA)<<" 6 = MAGENTA"<< color_to_string(ANSI_COLOR_CYAN)<<" 7 = CYAN " << color_to_string(ANSI_COLOR_RESET) << std::endl;
+        std::cout << grid.to_string() << std::endl; // ~ 2ms
+        
         std::flush(std::cout);
 
         set_non_blocking(true);
@@ -102,14 +106,14 @@ int main(){
                 //std::cout << "You pressed: " << ch << std::endl; 
                 break;
             }
-            usleep(10000);
+            usleep(100);
         }
         set_non_blocking(false);
-
 
         if (ch == 'q') {
             break;
         }
+
         send(socketfd,&ch,1,0);
 
         memset(buffer, 0, MAX_BUF_SIZE);
@@ -119,6 +123,7 @@ int main(){
         }
 
         grid.decode_long(grid.rle_decode(std::string(buffer,0,bytes_received)));
+        
         
     }
     close(socketfd);
