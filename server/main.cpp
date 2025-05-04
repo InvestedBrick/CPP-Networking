@@ -166,7 +166,7 @@ void listener_thread(void* args){
     
 }
 
-void closing_thread() {
+void closing_thread(void* args) {
     //closing thread
     int closing_threadfd = create_socket_fd(CLOSE_PORT,"127.0.0.1");
 
@@ -184,6 +184,8 @@ void closing_thread() {
             grid.save_canvas();
             close_server = true;
             log("Closed Server");
+            close(closing_threadfd);
+            close(*(int*)args);
             exit(EXIT_SUCCESS);
         }
     }
@@ -203,7 +205,7 @@ int main() {
 
     // create a listening thread
     std::thread listener(listener_thread, &socketfd);
-    std::thread closer(closing_thread);
+    std::thread closer(closing_thread,&socketfd);
 
     closer.join();
     listener.join();
