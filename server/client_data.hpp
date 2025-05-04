@@ -58,7 +58,7 @@ public:
                 }
                 break;
             }
-            case 'c': {
+            case ' ': {
                 color_current_cell = true;
                 break;
             }
