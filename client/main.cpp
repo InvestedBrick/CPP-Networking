@@ -90,7 +90,7 @@ int main(){
     char ch;
     while(true){
         system("clear");
-        std::cout << "The Grid; Use WASD to move, 'q' to quit and 'c' to color the current cell" << std::endl;
+        std::cout << "The Grid; Use WASD to move, 'q' to quit and SPACE to color the current cell" << std::endl;
         std::cout << "To change color, press the following to choose: " << std::endl;
         std::cout << color_to_string(ANSI_COLOR_BLACK) <<"0 = BLACK"<< color_to_string(ANSI_COLOR_RESET) << " 1 = WHITE" << color_to_string(ANSI_COLOR_RED)
         << " 2 = RED"<< color_to_string(ANSI_COLOR_GREEN)<<" 3 = GREEN"<< color_to_string(ANSI_COLOR_YELLOW)<<" 4 = YELLOW"<< color_to_string(ANSI_COLOR_BLUE)
