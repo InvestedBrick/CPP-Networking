@@ -210,6 +210,5 @@ int main() {
     closer.join();
     listener.join();
 
-    close(socketfd);
     return 0;
 }
