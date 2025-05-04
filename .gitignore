@@ -3,3 +3,4 @@ server/server
 client/client
 tunnel.sh
 bore
+server/save.canv
