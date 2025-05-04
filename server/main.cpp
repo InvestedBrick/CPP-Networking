@@ -116,6 +116,7 @@ void handle_client(void* args){
 
 void listener_thread(void* args){
     int socketfd = *(int*)args;
+    grid.restore_canvas();
     while(true){
 
         sockaddr_in client;
