@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <fstream>
 #include "colors.hpp"
 
 #define GRID_WIDTH 150
@@ -86,5 +87,30 @@ public:
         }
         return result;
     }
+
+    void save_canvas() {
+        std::fstream save_file("save.canv",std::ios::out);
+        if (!save_file){
+            std::cerr << "Failed to open file\n";
+            return;
+        }
+        std::string encoded = this->encode_long();
+        save_file.write(encoded.c_str(),encoded.length());
+        save_file.close();
+    }
+
+    void restore_canvas() {
+        std::fstream save_file("save.canv", std::ios::in);
+        if (!save_file){
+            std::cerr << "Failed to open file\n";
+            return;
+        }
+
+        std::string encoded;
+        std::getline(save_file,encoded);
+        save_file.close();
+        this->decode_long(encoded);
+    }
+
 
 };
