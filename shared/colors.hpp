@@ -12,7 +12,7 @@
 #define ANSI_COLOR_RESET    0
 
 #define ANSI_COLOR_BACKGROUND_WHITE 47
-#define PIXEL_CHAR "#"
+#define PIXEL_CHAR "█" // "█"
 
 std::string color_to_string(int color) {
     switch (color) {
