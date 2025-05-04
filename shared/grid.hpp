@@ -3,8 +3,8 @@
 #include <iostream>
 #include "colors.hpp"
 
-#define GRID_WIDTH 100
-#define GRID_HEIGHT 20
+#define GRID_WIDTH 150
+#define GRID_HEIGHT 40
 
 
 class Grid {
