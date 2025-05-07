@@ -103,6 +103,7 @@ void handle_client(void* args){
         {
             std::lock_guard<std::mutex> lock(mtx);
             std::cout << "Sending " << grid_str.length() << " bytes!" << std::endl;
+            std::cout << grid_str << std::endl;
         }
         memcpy(buf,grid_str.c_str(),grid_str.length());
         send(client_socket, buf, grid_str.length(), 0); // send the field
