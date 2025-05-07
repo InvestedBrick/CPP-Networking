@@ -122,7 +122,7 @@ int main(){
             warn("Failed to receive message");
         }
 
-        grid.decode_long(grid.rle_decode(std::string(buffer,0,bytes_received)));
+        grid.decode_long(grid.rle_decode_efficient(std::string(buffer,0,bytes_received)));
         
         
     }
