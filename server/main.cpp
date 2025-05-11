@@ -10,6 +10,7 @@
 #include <queue>
 #include "../shared/grid.hpp"
 #include "client_data.hpp"
+#include "../shared/huffman.hpp"
 Grid grid;
 std::mutex mtx;
 
@@ -99,11 +100,13 @@ void handle_client(void* args){
         // send grid
         std::string grid_str = grid.encode_long();
         grid_str[c_data.pos_y * GRID_WIDTH + c_data.pos_x] = 'X'; // set player cursor
-        grid_str = grid.rle_efficient(grid_str);
+        grid_str = grid.rle_encode(grid_str);
+
+        Huffman huffer(grid_str);
+        grid_str = huffer.encode();
         {
             std::lock_guard<std::mutex> lock(mtx);
             std::cout << "Sending " << grid_str.length() << " bytes!" << std::endl;
-            std::cout << grid_str << std::endl;
         }
         memcpy(buf,grid_str.c_str(),grid_str.length());
         send(client_socket, buf, grid_str.length(), 0); // send the field
