@@ -54,6 +54,36 @@ public:
         }
     }
     
+
+    std::string rle_efficient(const std::string& data){
+        std::string result;
+
+        uint8_t count = 1;
+
+        for (size_t i = 1; i < data.length();++i){
+            if (data[i] == data[i - 1] && count < 255){
+                count++;
+            }else{
+                result += static_cast<char>(count);
+                result += data[i-1];
+                count = 1;
+            }
+
+        }
+        result += static_cast<char>(count);
+        result += data[data.length() - 1];
+        return result;
+    }
+
+    std::string rle_decode_efficient(const std::string& data){
+        std::string result;
+        for (size_t i = 0; i < data.length(); i += 2){
+            uint8_t count = static_cast<uint8_t>(data[i]);
+            result.append(count,data[i + 1]);
+        }
+
+        return result;
+    }
     std::string rle_encode(const std::string& data) {
         std::string result;
         int count = 1;
