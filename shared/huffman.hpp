@@ -3,7 +3,9 @@
 #include <string>
 #include <algorithm>
 #include <memory>
-
+#include <map>
+#include <iostream>
+#include "data_operator.hpp"
 class Huffman {
 private:
 
@@ -15,15 +17,18 @@ private:
         std::unique_ptr<Node> left = nullptr;
         std::unique_ptr<Node> right = nullptr;
         char c;
+
+        bool operator < (const Node& other) {
+            return ( this->weight < other.weight);
+        }
     };
 
     std::string& data;
     std::vector<std::unique_ptr<Node>> freqs {};
     std::vector<uint8_t> bytes {};
+    std::map<char,std::string> code_map {};
+    
 
-    void set_bit_n(uint8_t& byte, uint8_t n){
-        byte |= (0x1 << n);
-    }
     void calculate_frequencies(){
         for (char c : data){
             //Maybe vec of Nodes
@@ -40,7 +45,7 @@ private:
     }
 
 
-    bool cmp(const std::unique_ptr<Node>& a, const std::unique_ptr<Node>& b){
+    static bool cmp(const std::unique_ptr<Node>& a, const std::unique_ptr<Node>& b){
         return a->weight > b->weight;
     }
     //sort the freqs in reverse order
@@ -48,7 +53,20 @@ private:
         std::sort(freqs.begin(),freqs.end(),cmp);
     }
 
+    void build_map(std::unique_ptr<Node>& node,std::string running_encoding){
+        if(node->left == nullptr && node->right == nullptr){
+           //leaf
+           code_map.insert({node->c,running_encoding}); 
+           return;
+        }
 
+        if(node->left != nullptr){
+            build_map(node->left,running_encoding + "0");
+        }
+        if(node->right != nullptr){
+            build_map(node->right,running_encoding + "1");
+        }
+    }
 
 public:
     Huffman(std::string& data_) : data(data_) {}
@@ -73,8 +91,11 @@ public:
         }
 
         //encode string
-
-        
+        auto root = std::move(freqs.back());
+        build_map(root,""); 
+        for(auto const& item : code_map){
+            std::cout << "{" << item.first << " : " << item.second << "}" << std::endl;
+        }
     }
 
 };
