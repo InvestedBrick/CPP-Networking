@@ -1,4 +1,6 @@
 .vscode/
+shared/test
+shared/test.cpp
 server/server
 client/client
 tunnel.sh
