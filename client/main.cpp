@@ -11,6 +11,7 @@
 #include <fcntl.h>
 
 #include "../shared/grid.hpp"
+#include "../shared/huffman.hpp"
 
 Grid grid;
 
@@ -122,8 +123,13 @@ int main(){
             warn("Failed to receive message");
         }
 
-        grid.decode_long(grid.rle_decode_efficient(std::string(buffer,0,bytes_received)));
-        
+        std::string recvd_data = std::string(buffer,0,bytes_received);
+        std::string empty(1,'\0');
+        Huffman huffer(empty);
+        std::string huff_decoded = huffer.decode(recvd_data);
+        std::cout << "Here" << std::endl;
+        std::cout << "Huffman decoded: " <<huff_decoded << std::endl;
+        grid.decode_long(grid.rle_decode(huff_decoded));
         
     }
     close(socketfd);
