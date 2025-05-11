@@ -1,6 +1,5 @@
 #include <string>
 #include <memory>
-#include <iostream>
 class Data_Writer {
 private:
     std::string& data;
@@ -89,9 +88,7 @@ public:
 
     uint8_t read_byte() {
         if (bit_idx == 0x0){
-            std::cout << "Byteidx: " << std::to_string(byte_idx)<< std::endl;
             uint8_t byte = read_byte_n(data,byte_idx);
-            std::cout << "Byte: " << data[byte_idx] << std::endl;
             byte_idx++;
             return byte;
         }else{
