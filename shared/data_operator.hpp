@@ -10,7 +10,7 @@ private:
 public:    
 
     Data_Writer(std::string& str_ref) : data(str_ref) {}
-
+    Data_Writer(const Data_Writer& other) : data(other.data), byte_idx(other.byte_idx), bit_idx(other.bit_idx){}
     //writes a bit 'bit' into the n-th bit of byte 'byte'
     void write_bit_n(uint8_t& byte, uint8_t n,bool bit){
         if (n > 0x7) return;
@@ -49,6 +49,12 @@ public:
         }
     }
 
+    void write_uint32_t(uint32_t value){
+        for (int i = 0; i < 4; i++){
+            write_byte(static_cast<uint8_t>(value >> (i * 8)));
+        }
+    }
+
 };
 
 
@@ -61,6 +67,8 @@ private:
 public:
 
     Data_Reader(std::string& str_ref) : data(str_ref) {}
+    Data_Reader(const Data_Reader& other) : data(other.data), byte_idx(other.byte_idx), bit_idx(other.bit_idx){}
+
     // returns the n-th bit of byte 'byte'
     // returns 0 on invalid bit
     bool read_bit_n(uint8_t byte, uint8_t n){
@@ -102,6 +110,14 @@ public:
             return byte;
 
         }
+    }
+
+    uint32_t read_uint32_t(){
+        uint32_t value = 0;
+        for (int i = 0; i < 4; i++){
+            value |= (static_cast<uint32_t>(read_byte()) << (i * 8));
+        }
+        return value;
     }
 
 };
