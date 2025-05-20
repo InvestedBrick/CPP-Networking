@@ -122,13 +122,12 @@ int main(){
         if (bytes_received == FAILED) {
             warn("Failed to receive message");
         }
+        std::string recvd_data(bytes_received,'\0');
+        memcpy(&recvd_data[0],buffer,bytes_received);
 
-        std::string recvd_data = std::string(buffer,0,bytes_received);
         std::string empty(1,'\0');
         Huffman huffer(empty);
         std::string huff_decoded = huffer.decode(recvd_data);
-        std::cout << "Here" << std::endl;
-        std::cout << "Huffman decoded: " <<huff_decoded << std::endl;
         grid.decode_long(grid.rle_decode(huff_decoded));
         
     }
