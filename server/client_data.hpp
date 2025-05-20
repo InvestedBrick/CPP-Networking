@@ -14,6 +14,7 @@ public:
     int pos_y;
     int current_color;
     bool color_current_cell;
+    bool no_send = false;
     
     client_data(){
         this->state_pos_x = 0;
@@ -95,6 +96,7 @@ public:
                 break;
             }
             default:{
+                no_send = true;
                 break;
             }
         }
