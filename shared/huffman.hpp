@@ -111,7 +111,6 @@ private:
     }
 public:
     Huffman(std::string& data_) : data(data_) {}
-
     void print_tree_structure(const std::shared_ptr<Node>& node, const std::string& prefix = "", bool is_left = true) {
         if (!node) {
             return;
@@ -126,10 +125,10 @@ public:
         // Print node details
         if (node->left == nullptr && node->right == nullptr) {
             // Leaf node
-            std::cout << "Leaf (Char: '" << node->c << "', Weight: " << node->weight << ")" << std::endl;
+            std::cout << "Leaf '" << node->c << "'" << std::endl;
         } else {
             // Internal node
-            std::cout << "Internal (Weight: " << node->weight << ")" << std::endl;
+            std::cout << "Internal"  << std::endl;
         }
     
         // Recurse for left and right children
