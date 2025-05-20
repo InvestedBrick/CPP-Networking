@@ -100,8 +100,11 @@ void handle_client(void* args){
         // send grid
         std::string grid_str = grid.encode_long();
         grid_str[c_data.pos_y * GRID_WIDTH + c_data.pos_x] = 'X'; // set player cursor
-        grid_str = grid.rle_encode(grid_str);
-
+        grid_str = grid.rle_encode(grid_str); // We use normal RLE because with the efficient rle there are more characters and this ends up being worse for huffman
+        //{
+        //    std::lock_guard<std::mutex> lock(mtx);
+        //    std::cout << "rle encoded: "<< grid_str << std::endl;
+        //}
         Huffman huffer(grid_str);
         grid_str = huffer.encode();
         {
