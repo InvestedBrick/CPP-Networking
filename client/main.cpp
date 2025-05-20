@@ -104,7 +104,6 @@ int main(){
 
         while (true){
             if(read(STDIN_FILENO,&ch,1) > 0){
-                //std::cout << "You pressed: " << ch << std::endl; 
                 break;
             }
             usleep(100);
@@ -114,6 +113,8 @@ int main(){
         if (ch == 'q') {
             break;
         }
+
+        if (!(ch == 'w' || ch == 'a' || ch == 's' || ch == 'd' || ch == ' '||(ch >= '0' && ch <= '7'))) {continue;}
 
         send(socketfd,&ch,1,0);
 
