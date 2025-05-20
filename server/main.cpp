@@ -89,6 +89,7 @@ void handle_client(void* args){
             break;
         }
         c_data.parse_char(instruc);
+        if (c_data.no_send) {c_data.no_send = false; continue;};
         if (c_data.color_current_cell){
             {
                 std::lock_guard<std::mutex> lock(mtx);
