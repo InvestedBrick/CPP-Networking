@@ -6,7 +6,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <fstream>
-//Stuff for changing therminal mode
+//Stuff for changing terminal mode
 #include <termios.h>
 #include <fcntl.h>
 
